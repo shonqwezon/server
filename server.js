@@ -1,9 +1,17 @@
-'use strict'
-var http = require('http')
+'use strict';
+var express = require('express')
+var app = express()
 
-var server = http.createServer(function (req, res) {
-    res.writeHead(200, { 'Content-Type': 'text/plain' })
-    res.end('Hello World\n')
-});
-server.listen(8383)
-console.log("Порт 8383")
+app.get('/', function (req, res) {
+    res.send('It is work')
+})
+
+app.get('/news', function (req, res) {
+    res.send('This is news')
+})
+
+app.get('/news/:id', function (req, res) {
+    res.send('ID is - ' + req.params.id)
+})
+
+app.listen(8383)
