@@ -43,4 +43,5 @@ app.get('/location.get', function (req, res) {
 
 
 app.listen(8383);
+console.log('Server created on port 8383');
     
