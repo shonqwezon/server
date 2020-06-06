@@ -2,46 +2,24 @@
 var express = require('express');
 var app = express();
 
-var bodyParser = require('body-parser');
-var urlencodedParser = bodyParser.urlencoded({ extended: false });
-var jsonParser = bodyParser.json()
+var { Client } = require('pg');
 
-var auth = require('./auth');
-
-var location = null;
-
-app.get('/auth', urlencodedParser, function (req, res) {
-    res.sendFile(__dirname + '/auth.html');
-});
-
-app.post('/auth', urlencodedParser, function (req, res) {
-    console.log(req.body);
-    return res.send(auth.reg(req.body));;
+var client = new Client({
+    user: 'qishon',
+    host: 'localhost',
+    database: 'gpsdata',
+    password: 'infiniti130191',
+    port: 5432
 });
 
 
-
-app.get('/', function (req, res) {
-    res.send("Main page");
+app.post('/', function (req, res) {
+    console.log('req is comming');
+    client.connect();
+    console.log('Conecting to gpsdata...');
+    return res.sendStatus(200);
+    console.log('Connected...');
 });
-
-
-
-app.post('/location.send', jsonParser, function (req, res) {
-    if (auth.check(req.headers.general)) {
-        location = req.body;
-        return res.sendStatus(200);
-    }
-    else return res.sendStatus(401);
-
-});
-
-app.get('/location.get', function (req, res) {
-    if (auth.check(req.headers.general)) res.send(location);
-    else return res.sendStatus(401);
-});
-
 
 app.listen(8383);
 console.log('Server created on port 8383');
-    
