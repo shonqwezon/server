@@ -14,9 +14,13 @@ app.get('/auth', urlencodedParser, (req, res) => {
 });
 
 app.post('/auth', urlencodedParser, (req, res) => {
-    var otvet = auth.reg(req.body);
-    console.log(otvet);
-    res.sendStatus(otvet);
+    auth.reg(req.body)
+        .then(
+            result => alert("Fulfilled " + result),
+            error => alert("Rejected " + error)
+        );
+    console.log("Complited");
+    res.sendStatus(200);
 });
 
 
