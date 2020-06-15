@@ -8,15 +8,15 @@ var jsonParser = bodyParser.json();
 
 var auth = require('./auth');
 
-var location = null;
 
 app.get('/auth', urlencodedParser, (req, res) => {
     res.sendFile(__dirname + '/auth.html');
 });
 
 app.post('/auth', urlencodedParser, (req, res) => {
-    console.log(req.body);
-    return res.send(auth.reg(req.body));
+    var otvet = auth.reg(req.body);
+    console.log(otvet);
+    res.sendStatus(otvet);
 });
 
 
@@ -43,4 +43,3 @@ app.get('/location.get', (req, res) => {
 
 app.listen(8383);
 console.log('Server created on port 8383');
-    

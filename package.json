@@ -1,8 +1,14 @@
 {
   "name": "server",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "server",
   "main": "server.js",
+  "license": "MIT",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shonqwezon/server"
+  },
   "author": {
     "name": "Shon Qwezon"
   },
