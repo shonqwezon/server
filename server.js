@@ -14,13 +14,14 @@ app.get('/auth', urlencodedParser, (req, res) => {
 });
 
 app.post('/auth', urlencodedParser, (req, res) => {
-    auth.reg(req.body)
-        .then(
-            result => alert("Fulfilled " + result),
-            error => alert("Rejected " + error)
-        );
-    console.log("Complited");
-    res.sendStatus(200);
+    auth.reg(req.body).then((result) => {
+        console.log(result);
+        console.log("Prog ended");
+        res.send(result);
+    }).catch((error) => {
+        console.log(error);
+        console.log("Prog ended");
+    });
 });
 
 
