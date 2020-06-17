@@ -8,6 +8,8 @@ var jsonParser = bodyParser.json();
 
 var auth = require('./auth');
 
+var location = null;
+
 
 app.get('/auth', urlencodedParser, (req, res) => {
     res.sendFile(__dirname + '/auth.html');
@@ -16,11 +18,9 @@ app.get('/auth', urlencodedParser, (req, res) => {
 app.post('/auth', urlencodedParser, (req, res) => {
     auth.reg(req.body).then((result) => {
         console.log(result);
-        console.log("Prog ended");
         res.send(result);
     }).catch((error) => {
         console.log(error);
-        console.log("Prog ended");
     });
 });
 
@@ -32,17 +32,29 @@ app.get('/', (req, res) => {
 
 
 app.post('/location.send', jsonParser, (req, res) => {
-    if (auth.check(req.headers)) {
-        location = req.body;
-        return res.sendStatus(200);
-    }
-    else return res.sendStatus(401);
-
+    console.log("'/location.send'");
+    auth.check(req.headers).then((result) => {
+        console.log(result);
+        if (result) {
+            location = req.body;
+            res.sendStatus(200);
+        }
+        else return res.sendStatus(401);
+    }).catch((error) => {
+        console.log(error);
+    });
 });
 
+
 app.get('/location.get', (req, res) => {
-    if (auth.check(req.headers)) res.send(location);
-    else return res.sendStatus(401);
+    console.log("'/location.get'");
+    auth.check(req.headers).then((result) => {
+        console.log(result);
+        if (result) res.send(location);
+        else res.sendStatus(401);        
+    }).catch((error) => {
+        console.log(error);
+    });   
 });
 
 
