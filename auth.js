@@ -24,7 +24,7 @@ module.exports.reg = function (data) {
                 pool.end();
                 reject(err);
             }
-            console.log("ID is" + result.rows[0].id);
+            console.log("ID is " + result.rows[0].id);
 
             pos.addUser(result.rows[0].id);
 

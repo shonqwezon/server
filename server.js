@@ -36,9 +36,9 @@ app.post('/location.send', jsonParser, (req, res) => {
     console.log("'/location.send' POST");
     auth.check(req.headers).then((result) => {
         if (result) {
-            location = req.body;
+            pos.addPos(req.body, req.headers.id);
+            console.log("Position is " + req.body + " of user " + req.headers.id;
             res.sendStatus(200);
-            console.log(location);
         }
         else res.sendStatus(401);
     }).catch((error) => {
