@@ -26,8 +26,6 @@ module.exports.reg = function (data) {
             }
             console.log("ID is " + result.rows[0].id);
 
-            pos.addUser(result.rows[0].id);
-
             var serial = { "id": `${result.rows[0].id}`, "token": `${token}` };
             resolve(serial);
         });
