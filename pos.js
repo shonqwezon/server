@@ -30,7 +30,12 @@ module.exports.getPos = function (id) {
                 pool.end();
                 reject(err);
             }
-            resolve(result);
+                var position = {
+                lat: result.rows[0].pos.x,
+                long: result.rows[0].pos.y,
+                datetime: result.rows[0].datetime
+            };
+            resolve(position);
         });
     };
 };
