@@ -20,9 +20,7 @@ app.post('/auth', urlencodedParser, (req, res) => {
     console.log("'/auth' POST");
     auth.reg(req.body).then((result) => {
         res.send(result);
-    }).catch((error) => {
-        console.log(error);
-    });
+    }).catch((error) => { console.log(error); });
 });
 
 
@@ -42,20 +40,20 @@ app.post('/location.send', jsonParser, (req, res) => {
             res.sendStatus(200);
         }
         else res.sendStatus(401);
-    }).catch((error) => {
-        console.log(error);
-    });
+    }).catch((error) => { console.log(error); });
 });
 
 
 app.get('/location.get', (req, res) => {
     console.log("'/location.get' GET");
     auth.check(req.headers).then((result) => {
-        if (result) res.send(location);
+        if (result) {
+            pos.getPos(req.headers.id).then((result) => {
+                res.send(result);
+            }).catch((error) => { console.log(error); });
+        }
         else res.sendStatus(401);        
-    }).catch((error) => {
-        console.log(error);
-    });   
+    }).catch((error) => { console.log(error); });   
 });
 
 
