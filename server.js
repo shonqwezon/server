@@ -49,7 +49,7 @@ app.get('/location.get', (req, res) => {
     auth.check(req.headers).then((result) => {
         if (result) {
             pos.getPos(req.headers.id).then((result) => {
-                res.send(result);
+                res.json(result);
             }).catch((error) => { console.log(error); });
         }
         else res.sendStatus(401);        
