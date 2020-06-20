@@ -7,6 +7,7 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false });
 var jsonParser = bodyParser.json();
 
 var auth = require('./auth');
+var pos = require('./pos');
 
 var location = null;
 
@@ -16,8 +17,8 @@ app.get('/auth', urlencodedParser, (req, res) => {
 });
 
 app.post('/auth', urlencodedParser, (req, res) => {
+    console.log("'/auth' POST");
     auth.reg(req.body).then((result) => {
-        console.log(result);
         res.send(result);
     }).catch((error) => {
         console.log(error);
@@ -32,14 +33,14 @@ app.get('/', (req, res) => {
 
 
 app.post('/location.send', jsonParser, (req, res) => {
-    console.log("'/location.send'");
+    console.log("'/location.send' POST");
     auth.check(req.headers).then((result) => {
-        console.log(result);
         if (result) {
             location = req.body;
             res.sendStatus(200);
+            console.log(location);
         }
-        else return res.sendStatus(401);
+        else res.sendStatus(401);
     }).catch((error) => {
         console.log(error);
     });
@@ -47,9 +48,8 @@ app.post('/location.send', jsonParser, (req, res) => {
 
 
 app.get('/location.get', (req, res) => {
-    console.log("'/location.get'");
+    console.log("'/location.get' GET");
     auth.check(req.headers).then((result) => {
-        console.log(result);
         if (result) res.send(location);
         else res.sendStatus(401);        
     }).catch((error) => {
