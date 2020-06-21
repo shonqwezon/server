@@ -16,20 +16,32 @@ app.get('/auth', urlencodedParser, (req, res) => {
     res.sendFile(__dirname + '/auth.html');
 });
 
-app.post('/auth', urlencodedParser, (req, res) => {
-    console.log("'/auth' POST");
+//регистрация, возращает id + token
+app.post('/reg', urlencodedParser, (req, res) => {
+    console.log("'/reg' POST");
     auth.reg(req.body).then((result) => {
         res.send(result);
     }).catch((error) => { console.log(error); });
 });
 
 
+//авторизация, возращает код результата
+app.post('/auth', urlencodedParser, (req, res) => {
+    console.log("'/auth' POST");
+    auth.login(req.body).then((result) => {
+        if (result) {
+            res.sendStatus(200);
+        }
+        else res.sendStatus(401);
+    }).catch((error) => { console.log(error); });
+});
+
 
 app.get('/', (req, res) => {
     res.send("Main page");
 });
 
-
+//принимает запросы с местоположением
 app.post('/location.send', jsonParser, (req, res) => {
     console.log("'/location.send' POST");
     auth.check(req.headers).then((result) => {
@@ -43,7 +55,7 @@ app.post('/location.send', jsonParser, (req, res) => {
     }).catch((error) => { console.log(error); });
 });
 
-
+//отсылает ответы с местоположением
 app.get('/location.get', (req, res) => {
     console.log("'/location.get' GET");
     auth.check(req.headers).then((result) => {

@@ -48,3 +48,19 @@ module.exports.check = function (info) {
     });
 };
 
+
+module.exports.login = function (data) {
+    return new Promise(function (resolve, reject) {
+        pool.query(`SELECT pass FROM authentication WHERE login = ${info.login};`, (err, result) => {
+            if (err) {
+                console.log(err)
+                pool.end();
+                reject(err);
+            }
+            if (result.rows[0].pass == info.pass) check = true;
+            else check = false;
+            resolve(check);
+        });
+    });
+};
+
