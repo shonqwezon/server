@@ -58,9 +58,23 @@ module.exports.login = function (data) {
                 reject(err);
             }
             var pass = { pass: `${data.pass}` };
-            if (result.rows[0] == JSON.stringify(pass)) check = true;
-            else check = false;
-            resolve(check);
+            if (JSON.stringify(result.rows[0]) == JSON.stringify(pass)) {
+                pool.query("SELECT * FROM authentication WHERE login = " + "'" + data.login + "';", (err, result) => {
+                    if (err) {
+                        console.log(err);
+                        pool.end();
+                        resolve(err);
+                    }
+                    else {
+                        var serial = { "id": `${result.rows[0].id}`, "token": `${result.rows[0].token}` };
+                        resolve(serial);
+                    }
+                });
+            }
+            else {
+                check = false;
+                resolve(check);
+            }
         });
     });
 };

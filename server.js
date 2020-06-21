@@ -9,12 +9,6 @@ var jsonParser = bodyParser.json();
 var auth = require('./auth');
 var pos = require('./pos');
 
-var location = null;
-
-
-app.get('/auth', urlencodedParser, (req, res) => {
-    res.sendFile(__dirname + '/auth.html');
-});
 
 //регистрация, возращает id + token
 app.post('/reg', urlencodedParser, (req, res) => {
@@ -30,7 +24,7 @@ app.post('/auth', urlencodedParser, (req, res) => {
     console.log("'/auth' POST");
     auth.login(req.body).then((result) => {
         if (result) {
-            res.sendStatus(200);
+            res.send(result);
         }
         else res.sendStatus(401);
     }).catch((error) => { console.log(error); });
