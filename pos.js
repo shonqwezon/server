@@ -15,7 +15,7 @@ module.exports.addPos = function (coord, id) {
     var strValue = `INSERT INTO locations(user_id, pos, datetime) ` + "VALUES('" + id + "', '" + coord + "', '" + date.toLocaleDateString('ukl', options) + "');";
     pool.query(strValue, (err, result) => {
         if (err) {
-            console.log(err);
+            console.log("Pool " + +err);
             pool.end();
         }
     });
@@ -26,7 +26,7 @@ module.exports.getPos = function (id) {
         var strValue = `SELECT * FROM locations WHERE user_id = ${id} ORDER BY id DESC LIMIT 1;`;
         pool.query(strValue, (err, result) => {
             if (err) {
-                console.log(err)
+                console.log("Pool " + err)
                 pool.end();
                 reject(err);
             }

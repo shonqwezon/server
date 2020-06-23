@@ -14,8 +14,9 @@ var pos = require('./pos');
 app.post('/reg', urlencodedParser, (req, res) => {
     console.log("'/reg' POST");
     auth.reg(req.body).then((result) => {
-        res.send(result);
-    }).catch((error) => { console.log(error); });
+        if (result.status == 200) res.sendStatus(result.status);
+        else res.status(result.status).end(result.error);
+    }).catch((error) => { console.log("Server " + error); });
 });
 
 
@@ -24,10 +25,10 @@ app.post('/auth', urlencodedParser, (req, res) => {
     console.log("'/auth' POST");
     auth.login(req.body).then((result) => {
         if (result) {
-            res.send(result);
+            res.sendStatus(result);
         }
         else res.sendStatus(401);
-    }).catch((error) => { console.log(error); });
+    }).catch((error) => { console.log("Server " + error); });
 });
 
 
@@ -46,7 +47,7 @@ app.post('/location.send', jsonParser, (req, res) => {
             res.sendStatus(200);
         }
         else res.sendStatus(401);
-    }).catch((error) => { console.log(error); });
+    }).catch((error) => { console.log("Server " + error); });
 });
 
 //отсылает ответы с местоположением
@@ -56,10 +57,10 @@ app.get('/location.get', (req, res) => {
         if (result) {
             pos.getPos(req.headers.id).then((result) => {
                 res.json(result);
-            }).catch((error) => { console.log(error); });
+            }).catch((error) => { console.log("Server " + error); });
         }
         else res.sendStatus(401);        
-    }).catch((error) => { console.log(error); });   
+    }).catch((error) => { console.log("Server " + error); });   
 });
 
 

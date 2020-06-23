@@ -16,18 +16,19 @@ module.exports.reg = function (data) {
     return new Promise(function (resolve, reject) {
 
         var token = md5(data.email + data.login + data.pass);
-        var strValue = "INSERT INTO authentication(token, login, pass, email) " + "VALUES('" + token + "', '" + data.login + "', '" + data.pass + "', '" + data.email + "') " + "RETURNING id;";
+        var strValue = "INSERT INTO authentication(token, login, pass, email) " + "VALUES('" + token + "', '" + data.login + "', '" + data.pass + "', '" + data.email + "');";
 
         pool.query(strValue, (err, result) => {
             if (err) {
-                console.log(err);
-                pool.end();
-                reject(err);
+                if (err.code == '23505') resolve({ "status": 400, "error": err.constraint});
+             
+                else {
+                    console.log("Pool " + err);
+                    pool.end();
+                    reject(err);
+                }
             }
-            console.log("ID is " + result.rows[0].id);
-
-            var serial = { "id": `${result.rows[0].id}`, "token": `${token}` };
-            resolve(serial);
+            resolve({ "status": 200 });           
         });
     });
 };
@@ -37,7 +38,7 @@ module.exports.check = function (info) {
     return new Promise(function (resolve, reject) {
         pool.query(`SELECT token FROM authentication WHERE id = ${info.id};`, (err, result) => {
             if (err) {
-                console.log(err)
+                console.log("Pool " + err)
                 pool.end();
                 reject(err);
             }
@@ -53,7 +54,7 @@ module.exports.login = function (data) {
     return new Promise(function (resolve, reject) {
         pool.query("SELECT pass FROM authentication WHERE login = " + "'" + data.login + "';", (err, result) => {
             if (err) {
-                console.log(err);
+                console.log("Pool " + err);
                 pool.end();
                 reject(err);
             }
@@ -61,7 +62,7 @@ module.exports.login = function (data) {
             if (JSON.stringify(result.rows[0]) == JSON.stringify(pass)) {
                 pool.query("SELECT * FROM authentication WHERE login = " + "'" + data.login + "';", (err, result) => {
                     if (err) {
-                        console.log(err);
+                        console.log("Pool " + err);
                         pool.end();
                         resolve(err);
                     }
