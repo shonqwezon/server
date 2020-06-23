@@ -18,10 +18,16 @@ module.exports.reg = function (data) {
         var token = md5(data.email + data.login + data.pass);
         var strValue = "INSERT INTO authentication(token, login, pass, email) " + "VALUES('" + token + "', '" + data.login + "', '" + data.pass + "', '" + data.email + "');";
 
-        pool.query(strValue, (err, result) => {
+        pool.query(strValue, (err) => {
             if (err) {
-                if (err.code == '23505') resolve({ "status": 400, "error": err.constraint});
-             
+                if (err.code == '23505') {
+                    pool.query("select nextval('authentication_id_seq');", (err, result) => {
+                        if (err) console.log(err);
+                        pool.query(`ALTER SEQUENCE authentication_id_seq restart WITH ${result.rows[0].nextval - 1};`, (err) => { if (err) console.log(err); });
+                    });
+                    
+                    resolve({ "status": 400, "error": err.constraint });
+                }   
                 else {
                     console.log("Pool " + err);
                     pool.end();

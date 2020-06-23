@@ -25,7 +25,7 @@ app.post('/auth', urlencodedParser, (req, res) => {
     console.log("'/auth' POST");
     auth.login(req.body).then((result) => {
         if (result) {
-            res.sendStatus(result);
+            res.send(result);
         }
         else res.sendStatus(401);
     }).catch((error) => { console.log("Server " + error); });
