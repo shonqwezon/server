@@ -20,6 +20,18 @@ app.post('/reg', urlencodedParser, (req, res) => {
 });
 
 
+//check
+app.post('/check', (req, res) => {
+    console.log("'/check' POST");
+    auth.check(req.headers).then((result) => {
+        if (result) {
+            res.sendStatus(200);
+        }
+        else res.sendStatus(401);
+    }).catch((error) => { console.log("Server " + error); });
+});
+
+
 //авторизация, возращает код результата
 app.post('/auth', urlencodedParser, (req, res) => {
     console.log("'/auth' POST");
