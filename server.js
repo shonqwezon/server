@@ -1,4 +1,8 @@
 'use strict';
+var fs = require('fs');
+var multer = require('multer');
+const morgan = require('morgan');
+
 var express = require('express');
 var app = express();
 
@@ -8,11 +12,14 @@ var jsonParser = bodyParser.json();
 
 var auth = require('./auth');
 var pos = require('./pos');
+var avatar = require('./avatar');
 
+var upload = multer({ dest: "media" });
+app.use(express.static(__dirname));
+app.use(morgan('dev'));
 
-//регистрация, возращает id + token
+//registry, returns token + id
 app.post('/reg', urlencodedParser, (req, res) => {
-    console.log("'/reg' POST");
     auth.reg(req.body).then((result) => {
         if (result.status == 200) res.sendStatus(result.status);
         else res.status(result.status).end(result.error);
@@ -22,7 +29,6 @@ app.post('/reg', urlencodedParser, (req, res) => {
 
 //check
 app.post('/check', (req, res) => {
-    console.log("'/check' POST");
     auth.check(req.headers).then((result) => {
         if (result) {
             res.sendStatus(200);
@@ -32,9 +38,8 @@ app.post('/check', (req, res) => {
 });
 
 
-//авторизация, возращает код результата
+//authentication, returns code
 app.post('/auth', urlencodedParser, (req, res) => {
-    console.log("'/auth' POST");
     auth.login(req.body).then((result) => {
         if (result) {
             res.send(result);
@@ -48,9 +53,8 @@ app.get('/', (req, res) => {
     res.send("Main page");
 });
 
-//принимает запросы с местоположением
+//get locations
 app.post('/location.send', jsonParser, (req, res) => {
-    console.log("'/location.send' POST");
     auth.check(req.headers).then((result) => {
         if (result) {
             var position = `${req.body.lat}, ${req.body.long}`
@@ -62,9 +66,8 @@ app.post('/location.send', jsonParser, (req, res) => {
     }).catch((error) => { console.log("Server " + error); });
 });
 
-//отсылает ответы с местоположением
+//send locations
 app.get('/location.get', (req, res) => {
-    console.log("'/location.get' GET");
     auth.check(req.headers).then((result) => {
         if (result) {
             pos.getPos(req.headers.id).then((result) => {
@@ -72,9 +75,36 @@ app.get('/location.get', (req, res) => {
             }).catch((error) => { console.log("Server " + error); });
         }
         else res.sendStatus(401);        
-    }).catch((error) => { console.log("Server " + error); });   
+    }).catch((error) => { console.log("Server " + error); });
+});
+
+
+//upload image
+app.post("/avatar", upload.single("avatar"), function (req, res) {
+    auth.check(req.headers).then((result) => {
+        if (result) {
+            let filedata = req.file;
+            if (!filedata) res.status(400).end('Failed to upload image');                
+            else {
+                avatar.linkUp(req.headers.id, process.cwd() + '/' + filedata.path);
+                res.sendStatus(200);
+                console.log(process.cwd() + '/' + filedata.path);
+            }
+        }
+        else res.sendStatus(401);
+    }).catch((error) => { console.log("Server " + error); });
 });
 
 
 app.listen(8383);
 console.log('Server created on port 8383');
+fs.stat(process.cwd() + '/media', (err) => {
+    if (!err) console.log('File exists');
+    else if (err.code === 'ENOENT') {
+        console.log('File not exists');
+        fs.mkdir(process.cwd() + '/media', (err) => {
+            if (err) console.log(err);
+            console.log('File is created');
+        });
+    }
+});
