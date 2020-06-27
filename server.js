@@ -15,8 +15,10 @@ var pos = require('./pos');
 var avatar = require('./avatar');
 
 var upload = multer({ dest: "media" });
-app.use(express.static(__dirname));
+app.use(express.static(__dirname + '/media'));
 app.use(morgan('dev'));
+
+var fileExt = ".png";
 
 //registry, returns token + id
 app.post('/reg', urlencodedParser, (req, res) => {
@@ -80,37 +82,21 @@ app.get('/location.get', (req, res) => {
 
 
 //upload image
-app.post("/avatarSet", upload.single("avatar"), function (req, res) {
+app.post("/avatar", upload.single("avatar"), function (req, res) {
     auth.check(req.headers).then((result) => {
         if (result) {
             let filedata = req.file;
             if (!filedata) res.status(400).end('Failed to upload image');                
             else {
-                avatar.linkUp(req.headers.id, process.cwd() + '/' + filedata.path);
+                fs.renameSync(filedata.path, filedata.path + fileExt, (err) => { if (err) console.log(err) });
+                avatar.linkUp(req.headers.id, __dirname + '/' + filedata.path + fileExt);
                 res.sendStatus(200);
-                console.log(process.cwd() + '/' + filedata.path);
             }
         }
         else res.sendStatus(401);
     }).catch((error) => { console.log("Server " + error); });
 });
 
-
-//get avatar
-app.post("/avatarGet", upload.single("avatar"), function (req, res) {
-    auth.check(req.headers).then((result) => {
-        if (result) {
-            let filedata = req.file;
-            if (!filedata) res.status(400).end('Failed to upload image');
-            else {
-                avatar.linkUp(req.headers.id, __dirname + '/' + filedata.path);
-                res.sendStatus(200);
-                console.log(__dirname + '/' + filedata.path);
-            }
-        }
-        else res.sendStatus(401);
-    }).catch((error) => { console.log("Server " + error); });
-});
 
 app.listen(8383);
 console.log('Server created on port 8383');

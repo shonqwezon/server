@@ -17,7 +17,10 @@ module.exports.linkUp = function (id, link) {
             console.log("Pool " + err);
             pool.end();
         }
-        fs.unlink(result.rows[0], (err) => { if(err) console.log(err) });
+        if (result.rows[0].avatar != null) {
+            console.log('Not null link');
+            fs.unlink(result.rows[0].avatar, (err) => { if (err) console.log(err) });
+        }
         pool.query("UPDATE authentication SET avatar = '" + link + `' WHERE id = ${id};`, (err) => {
             if (err) {
                 console.log("Pool " + err);
@@ -27,6 +30,3 @@ module.exports.linkUp = function (id, link) {
     });
 };
 
-module.exports.linkGet = function (id) {
-
-};
