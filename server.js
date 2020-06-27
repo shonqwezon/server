@@ -80,7 +80,7 @@ app.get('/location.get', (req, res) => {
 
 
 //upload image
-app.post("/avatar", upload.single("avatar"), function (req, res) {
+app.post("/avatarSet", upload.single("avatar"), function (req, res) {
     auth.check(req.headers).then((result) => {
         if (result) {
             let filedata = req.file;
@@ -96,13 +96,29 @@ app.post("/avatar", upload.single("avatar"), function (req, res) {
 });
 
 
+//get avatar
+app.post("/avatarGet", upload.single("avatar"), function (req, res) {
+    auth.check(req.headers).then((result) => {
+        if (result) {
+            let filedata = req.file;
+            if (!filedata) res.status(400).end('Failed to upload image');
+            else {
+                avatar.linkUp(req.headers.id, __dirname + '/' + filedata.path);
+                res.sendStatus(200);
+                console.log(__dirname + '/' + filedata.path);
+            }
+        }
+        else res.sendStatus(401);
+    }).catch((error) => { console.log("Server " + error); });
+});
+
 app.listen(8383);
 console.log('Server created on port 8383');
-fs.stat(process.cwd() + '/media', (err) => {
+fs.stat(__dirname + '/media', (err) => {
     if (!err) console.log('File exists');
     else if (err.code === 'ENOENT') {
         console.log('File not exists');
-        fs.mkdir(process.cwd() + '/media', (err) => {
+        fs.mkdir(__dirname + '/media', (err) => {
             if (err) console.log(err);
             console.log('File is created');
         });

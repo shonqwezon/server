@@ -1,4 +1,5 @@
 var pg = require('pg');
+var fs = require('fs');
 
 
 var pool = new pg.Pool({
@@ -11,10 +12,21 @@ var pool = new pg.Pool({
 
 
 module.exports.linkUp = function (id, link) {
-    pool.query("UPDATE authentication SET avatar = '" + link + `' WHERE id = ${id};`, (err) => {
+    pool.query(`SELECT avatar FROM authentication WHERE id = ${id};`, (err, result) => {
         if (err) {
-            console.log("Pool " + err)
+            console.log("Pool " + err);
             pool.end();
         }
+        fs.unlink(result.rows[0], (err) => { if(err) console.log(err) });
+        pool.query("UPDATE authentication SET avatar = '" + link + `' WHERE id = ${id};`, (err) => {
+            if (err) {
+                console.log("Pool " + err);
+                pool.end();
+            }
+        });
     });
+};
+
+module.exports.linkGet = function (id) {
+
 };
