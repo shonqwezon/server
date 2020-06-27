@@ -100,13 +100,3 @@ app.post("/avatar", upload.single("avatar"), function (req, res) {
 
 app.listen(8383);
 console.log('Server created on port 8383');
-fs.stat(__dirname + '/media', (err) => {
-    if (!err) console.log('File exists');
-    else if (err.code === 'ENOENT') {
-        console.log('File not exists');
-        fs.mkdir(__dirname + '/media', (err) => {
-            if (err) console.log(err);
-            console.log('File is created');
-        });
-    }
-});
