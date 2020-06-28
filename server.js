@@ -81,7 +81,7 @@ app.get('/location.get', (req, res) => {
 });
 
 
-app.post('/getInfo'), (req, res) => {
+app.post('/getInfo', (req, res) => {
     auth.check(req.headers).then((result) => {
         if (result) {
             profile.getInfo(req.headers.id).then((result) => { res.json(result); })
@@ -89,7 +89,7 @@ app.post('/getInfo'), (req, res) => {
         }
         else res.sendStatus(401);
     }).catch((error) => { console.log("Server " + error); });
-}
+});
 
 
 //upload image
