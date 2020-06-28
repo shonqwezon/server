@@ -42,7 +42,7 @@ module.exports.getInfo = function (id) {
                 login: result.rows[0].login,
                 avatar: result.rows[0].avatar,
             };
-            resolve(check);
+            resolve(infoUser);
         });
     });
 }
