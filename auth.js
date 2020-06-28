@@ -25,16 +25,16 @@ module.exports.reg = function (data) {
                         if (err) console.log(err);
                         pool.query(`ALTER SEQUENCE authentication_id_seq restart WITH ${result.rows[0].nextval - 1};`, (err) => { if (err) console.log(err); });
                     });
-                    
+
                     resolve({ "status": 400, "error": err.constraint });
-                }   
+                }
                 else {
                     console.log("Pool " + err);
                     pool.end();
                     reject(err);
                 }
             }
-            resolve({ "status": 200 });           
+            resolve({ "status": 200 });
         });
     });
 };
@@ -48,7 +48,7 @@ module.exports.check = function (info) {
                 pool.end();
                 reject(err);
             }
-            if (result.rows[0].token == info.key) check = true;                
+            if (result.rows[0].token == info.key) check = true;
             else check = false;
             resolve(check);
         });

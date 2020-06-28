@@ -12,10 +12,10 @@ var jsonParser = bodyParser.json();
 
 var auth = require('./auth');
 var pos = require('./pos');
-var avatar = require('./avatar');
+var profile = require('./profile');
 
 var upload = multer({ dest: "media" });
-app.use(express.static(__dirname + '/media'));
+app.use(express.static(__dirname));
 app.use(morgan('dev'));
 
 var fileExt = ".png";
@@ -76,9 +76,20 @@ app.get('/location.get', (req, res) => {
                 res.json(result);
             }).catch((error) => { console.log("Server " + error); });
         }
-        else res.sendStatus(401);        
+        else res.sendStatus(401);
     }).catch((error) => { console.log("Server " + error); });
 });
+
+
+app.post('/getInfo'), (req, res) => {
+    auth.check(req.headers).then((result) => {
+        if (result) {
+            profile.getInfo(req.headers.id).then((result) => { res.json(result); })
+                .catch((error) => { console.log("getInfo " + error); });
+        }
+        else res.sendStatus(401);
+    }).catch((error) => { console.log("Server " + error); });
+}
 
 
 //upload image
@@ -86,10 +97,10 @@ app.post("/avatar", upload.single("avatar"), function (req, res) {
     auth.check(req.headers).then((result) => {
         if (result) {
             let filedata = req.file;
-            if (!filedata) res.status(400).end('Failed to upload image');                
+            if (!filedata) res.status(400).end('Failed to upload image');
             else {
                 fs.renameSync(filedata.path, filedata.path + fileExt, (err) => { if (err) console.log(err) });
-                avatar.linkUp(req.headers.id, __dirname + '/' + filedata.path + fileExt);
+                profile.avatarLinkUp(req.headers.id, filedata.path + fileExt);
                 res.sendStatus(200);
             }
         }
