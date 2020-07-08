@@ -32,7 +32,7 @@ module.exports.avatarLinkUp = function (id, link) {
 
 module.exports.getInfo = function (id) {
     return new Promise(function (resolve, reject) {
-        pool.query(`SELECT * FROM authentication WHERE id = ${info.id};`, (err, result) => {
+        pool.query(`SELECT * FROM authentication WHERE id = ${id};`, (err, result) => {
             if (err) {
                 console.log("Pool " + err)
                 pool.end();
@@ -40,7 +40,7 @@ module.exports.getInfo = function (id) {
             }
             var infoUser = {
                 login: result.rows[0].login,
-                avatar: result.rows[0].avatar,
+                avatar: result.rows[0].avatar
             };
             resolve(infoUser);
         });

@@ -5,6 +5,7 @@ const morgan = require('morgan');
 
 var express = require('express');
 var app = express();
+var io = require('socket.io')(app.listen(8383));
 
 var bodyParser = require('body-parser');
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
@@ -58,7 +59,7 @@ app.get('/', (req, res) => {
 //get locations
 app.post('/location.send', jsonParser, (req, res) => {
     auth.check(req.headers).then((result) => {
-        if (result) {
+        if (result == true) {
             var position = `${req.body.lat}, ${req.body.long}`
             pos.addPos(position, req.headers.id);
             console.log("Position is " + position + " of user " + req.headers.id);
@@ -71,7 +72,7 @@ app.post('/location.send', jsonParser, (req, res) => {
 //send locations
 app.get('/location.get', (req, res) => {
     auth.check(req.headers).then((result) => {
-        if (result) {
+        if (result == true) {
             pos.getPos(req.headers.id).then((result) => {
                 res.json(result);
             }).catch((error) => { console.log("Server " + error); });
@@ -83,7 +84,7 @@ app.get('/location.get', (req, res) => {
 
 app.post('/getInfo', (req, res) => {
     auth.check(req.headers).then((result) => {
-        if (result) {
+        if (result == true) {
             profile.getInfo(req.headers.id).then((result) => { res.json(result); })
                 .catch((error) => { console.log("getInfo " + error); });
         }
@@ -95,7 +96,7 @@ app.post('/getInfo', (req, res) => {
 //upload image
 app.post("/avatar", upload.single("avatar"), function (req, res) {
     auth.check(req.headers).then((result) => {
-        if (result) {
+        if (result == true) {
             let filedata = req.file;
             if (!filedata) res.status(400).end('Failed to upload image');
             else {
@@ -109,5 +110,21 @@ app.post("/avatar", upload.single("avatar"), function (req, res) {
 });
 
 
-app.listen(8383);
+io.on('connection', (socket) => {
+    auth.sockSet(socket.handshake.query.IDofUser, socket.id);
+
+    console.log(`New user ${socket.id} has connected`);
+
+    socket.on('disconnect', () => {
+        console.log(`User ${socket.id} has disconnected`);
+    });
+    socket.on("rootID", (data) => {
+        console.log(data);
+        auth.sockGet(data.IDsub).then((result) => {
+            io.to(result).emit('message', data);
+        }).catch((error) => { console.log("Server " + error) });        
+    });
+});
+
+
 console.log('Server created on port 8383');

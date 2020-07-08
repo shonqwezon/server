@@ -56,6 +56,33 @@ module.exports.check = function (info) {
 };
 
 
+
+module.exports.sockSet = function (user, userId) {
+    pool.query("UPDATE authentication SET socket = '" + userId + `' WHERE id = ${user};`, (err) => {
+        if (err) {
+            console.log("Pool " + err);
+            pool.end();
+        }
+    });
+};
+
+
+
+module.exports.sockGet = function (userId) {
+    return new Promise(function (resolve, reject) {
+        pool.query(`SELECT socket FROM authentication WHERE login = ${userId};`, (err, result) => {
+            if (err) {
+                console.log("Pool " + err);
+                pool.end();
+                reject(err);
+            }
+            resolve(result);
+        });
+    });
+};
+
+
+
 module.exports.login = function (data) {
     return new Promise(function (resolve, reject) {
         pool.query("SELECT pass FROM authentication WHERE login = " + "'" + data.login + "';", (err, result) => {
