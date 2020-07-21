@@ -29,7 +29,7 @@ app.post('/reg', urlencodedParser, (req, res) => {
     }).catch((error) => { console.log("Server " + error); });
 });
 
-
+/*
 //check
 app.post('/check', (req, res) => {
     auth.check(req.headers).then((result) => {
@@ -39,7 +39,7 @@ app.post('/check', (req, res) => {
         else res.sendStatus(401);
     }).catch((error) => { console.log("Server " + error); });
 });
-
+*/
 
 //authentication, returns code
 app.post('/auth', urlencodedParser, (req, res) => {
@@ -81,11 +81,11 @@ app.get('/location.get', (req, res) => {
     }).catch((error) => { console.log("Server " + error); });
 });
 
-
+//get info about user
 app.post('/getInfo', (req, res) => {
     auth.check(req.headers).then((result) => {
         if (result == true) {
-            profile.getInfo(req.headers.id).then((result) => { res.json(result); })
+            profile.getInfo(req.headers.id).then((result) => { res.status(200).json(result); })
                 .catch((error) => { console.log("getInfo " + error); });
         }
         else res.sendStatus(401);
@@ -118,10 +118,14 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log(`User ${socket.id} has disconnected`);
     });
-    socket.on("rootID", (data) => {
-        console.log(data);
+    socket.on("rootID", (data, callback) => {
+        console.log("Messgae to " + data.IDsub);
         auth.sockGet(data.IDsub).then((result) => {
-            io.to(result).emit('message', data);
+            if (result != null) {
+                io.to(result.socket).emit('message', data.IDmain);
+                callback('OK');
+            } 
+            else callback('error');
         }).catch((error) => { console.log("Server " + error) });        
     });
 });
