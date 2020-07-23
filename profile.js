@@ -32,51 +32,61 @@ module.exports.avatarLinkUp = function (id, link) {
 
 module.exports.getInfo = function (id) {
     return new Promise(function (resolve, reject) {
-        pool.query(`SELECT * FROM authentication WHERE id = ${id};`, (err, result) => {
-            if (err) {
-                console.log("Pool " + err)
-                pool.end();
-                reject(err);
-            }
-            var infoUser = {
-                login: result.rows[0].login,
-                avatar: result.rows[0].avatar
-            };
-            resolve(infoUser);
-        });
-    });
-}
-
-module.exports.getPermiss = function (login) {
-    return new Promise(function (resolve, reject) {
 
         var promise = new Promise(function (res, rej) {
-            //tracked users
-            pool.query(`SELECT user_sub FROM permisstrack WHERE user_main = ${login};`, (err, result) => {
+            pool.query(`SELECT * FROM authentication WHERE id = ${id};`, (err, result) => {
                 if (err) {
                     console.log("Pool " + err)
                     pool.end();
                     reject(err);
                 }
-                res(result);
+                res(result.rows[0]);
             });
         });
 
+        var promise1 = function (login) {
+            return new Promise(function (res1, rej1) {
+                //users_sub
+                pool.query(`SELECT user_sub FROM permisstrack WHERE user_main = '${login}';`, (err, result) => {
+                    if (err) {
+                        console.log("Pool " + err)
+                        pool.end();
+                        reject(err);
+                    }
+                    res1(result.rows);
+                });
+            });
+        };
+
+        var promise2 = function (login) {
+            return new Promise(function (res2, rej2) {
+                //users_main
+                pool.query(`SELECT user_main FROM permisstrack WHERE user_sub = '${login}';`, (err, result) => {
+                    if (err) {
+                        console.log("Pool " + err)
+                        pool.end();
+                        reject(err);
+                    }
+                    res2(result.rows);
+                });
+            });
+        }
+
         promise.then((res) => {
-            //who is tracking you
-            pool.query(`SELECT user_main FROM permisstrack WHERE user_sub = ${login};`, (err, result) => {
-                if (err) {
-                    console.log("Pool " + err)
-                    pool.end();
-                    reject(err);
-                }
-                var infoPermiss = {
-                    users_main: result.rows[0].user_main,
-                    users_sub: res
-                };
-                resolve(infoPermiss);
+            promise1.then((res1) => {
+                promise2.then((res2) => {
+                    var infoUser = {
+                        login: res.login,
+                        avatar: res.avatar,
+                        users_sub: res1,
+                        users_main: res2
+                    };
+                    resolve(infoUser);
+                });
             });
         });
     });
 }
+
+
 
