@@ -93,6 +93,13 @@ app.post('/getInfo', (req, res) => {
 });
 
 
+app.post('/getPermiss', (req, res) => {
+    profile.getPermiss(req.headers).then((result) => {
+        res.json(result);
+    }).catch((error) => { console.log("Server " + error); });
+});
+
+
 //upload image
 app.post("/avatar", upload.single("avatar"), function (req, res) {
     auth.check(req.headers).then((result) => {
@@ -127,6 +134,10 @@ io.on('connection', (socket) => {
             } 
             else callback('error');
         }).catch((error) => { console.log("Server " + error) });        
+    });
+    socket.on('responseTo', (data) => {
+        console.log(`User ${data.IDmain} is tracking ${data.IDsub}`);
+        auth.permissToTrack(data);
     });
 });
 

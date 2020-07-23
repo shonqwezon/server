@@ -47,3 +47,36 @@ module.exports.getInfo = function (id) {
     });
 }
 
+module.exports.getPermiss = function (login) {
+    return new Promise(function (resolve, reject) {
+
+        var promise = new Promise(function (res, rej) {
+            //tracked users
+            pool.query(`SELECT user_sub FROM permisstrack WHERE user_main = ${login};`, (err, result) => {
+                if (err) {
+                    console.log("Pool " + err)
+                    pool.end();
+                    reject(err);
+                }
+                res(result);
+            });
+        });
+
+        promise.then((res) => {
+            //who is tracking you
+            pool.query(`SELECT user_main FROM permisstrack WHERE user_sub = ${login};`, (err, result) => {
+                if (err) {
+                    console.log("Pool " + err)
+                    pool.end();
+                    reject(err);
+                }
+                var infoPermiss = {
+                    users_main: result.rows[0].user_main,
+                    users_sub: res
+                };
+                resolve(infoPermiss);
+            });
+        });
+    });
+}
+

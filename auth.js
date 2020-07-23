@@ -82,6 +82,16 @@ module.exports.sockGet = function (userId) {
 };
 
 
+module.exports.permissToTrack = function (data) {
+    var strValue = `INSERT INTO permisstrack(user_main, user_sub) ` + "VALUES('" + data.IDmain + "', '" + data.IDsub + "');";
+    pool.query(strValue, (err) => {
+        if (err) {
+            console.log("Pool " + err);
+            pool.end();
+        }
+    });
+};
+
 
 module.exports.login = function (data) {
     return new Promise(function (resolve, reject) {
