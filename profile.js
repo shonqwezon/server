@@ -76,19 +76,3 @@ var getUsersMain = function (login) {
     });
 };
 module.exports.getUsersMain = getUsersMain;
-
-
-
-promise.then((res) => {
-    getUsersSub(res.login).then((res1) => {
-        getUsersMain(res.login).then((res2) => {
-            var infoUser = {
-                login: res.login,
-                avatar: res.avatar,
-                users_sub: res1,
-                users_main: res2
-            };
-            resolve(infoUser);
-        });
-    });
-});
