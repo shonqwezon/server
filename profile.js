@@ -47,7 +47,7 @@ module.exports.getInfo = function (id) {
     });
 };
 
-var getUsersSub = function (login) {
+module.exports.getUsersSub = function (login) {
     return new Promise(function (res1, rej1) {
         //users_sub
         pool.query(`SELECT user_sub FROM permisstrack WHERE user_main = '${login}';`, (err, result) => {
@@ -60,9 +60,8 @@ var getUsersSub = function (login) {
         });
     });
 };
-module.exports.getUsersSub = getUsersSub;
 
-var getUsersMain = function (login) {
+module.exports.getUsersMain = function (login) {
     return new Promise(function (res2, rej2) {
         //users_main
         pool.query(`SELECT user_main FROM permisstrack WHERE user_sub = '${login}';`, (err, result) => {
@@ -75,4 +74,3 @@ var getUsersMain = function (login) {
         });
     });
 };
-module.exports.getUsersMain = getUsersMain;

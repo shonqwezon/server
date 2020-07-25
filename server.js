@@ -3,6 +3,7 @@ var fs = require('fs');
 var multer = require('multer');
 const morgan = require('morgan');
 
+var nodemailer = require('nodemailer');
 var express = require('express');
 var app = express();
 var io = require('socket.io')(app.listen(8383));
@@ -20,6 +21,7 @@ app.use(express.static(__dirname));
 app.use(morgan('dev'));
 
 var fileExt = ".png";
+var abc = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 
 //registry, returns token + id
 app.post('/reg', urlencodedParser, (req, res) => {
@@ -29,17 +31,6 @@ app.post('/reg', urlencodedParser, (req, res) => {
     }).catch((error) => { console.log("Server " + error); });
 });
 
-/*
-//check
-app.post('/check', (req, res) => {
-    auth.check(req.headers).then((result) => {
-        if (result) {
-            res.sendStatus(200);
-        }
-        else res.sendStatus(401);
-    }).catch((error) => { console.log("Server " + error); });
-});
-*/
 
 //authentication, returns code
 app.post('/auth', urlencodedParser, (req, res) => {
@@ -52,9 +43,62 @@ app.post('/auth', urlencodedParser, (req, res) => {
 });
 
 
+
+app.post('/changePass', urlencodedParser, (req, res) => {
+    auth.check(req.headers).then((result) => {
+        if (result == true) {
+            auth.changePass(req.headers, req.body).then((resolve) => {
+                if (resolve) res.sendStatus(200);
+                else res.sendStatus(401);
+            }).catch((error) => { console.log("Server " + error); });
+        }
+        else res.sendStatus(401);
+    }).catch((error) => { console.log("Server " + error); });
+});
+
+
 app.get('/', (req, res) => {
     res.send("Main page");
 });
+
+
+
+app.post('/restorePass', (req, res) => {
+    auth.restorePass(req.headers.login).then((result) => {
+        var pass = "";
+        while (rs.length < 6) {
+            pass += abc[Math.floor(Math.random() * abc.length)];
+        }
+        var mailOptions = {
+            from: "spotter.app@mail.ru", // sender address
+            to: `${result}`, // list of receivers
+            subject: 'Password recovery for Spotter', // Subject line
+            html: `<b>Your new password is ${pass}</b>` // html body
+        };
+        var mailer = nodemailer.createTransport({
+            host: 'smtp.mail.ru',
+            port: 465,
+            secure: true,
+            auth: {
+                user: 'spotter.app@mail.ru',
+                pass: 'infiniti130191'
+            },
+            tls: {
+                rejectUnauthorized: false
+            }
+        });
+        mailer.sendMail(mailOptions, (error, response) => {
+            if (error) {
+                console.log('mail not sent \n', error);
+            }
+            else {
+                console.log("Message sent: ", response);
+            }
+        }); 
+    }).catch((error) => { console.log("Server " + error); });
+});
+
+
 
 //get locations
 app.post('/location.send', jsonParser, (req, res) => {
@@ -129,12 +173,14 @@ app.post('/getUsersMain', (req, res) => {
 app.post('/getUsersSub', (req, res) => {
     auth.check(req.headers).then((result) => {
         if (result == true) {
-            profile.getUsersMain(req.headers.login).then((res1) => { res.status(200).json(res1); })
+            profile.getUsersSub(req.headers.login).then((res1) => { res.status(200).json(res1); })
                 .catch((error) => { console.log("getPermiss " + error); });
         }
         else res.sendStatus(401);
     }).catch((error) => { console.log("Server " + error); });
 });
+
+
 
 
 
@@ -170,6 +216,11 @@ io.on('connection', (socket) => {
     socket.on('responseTo', (data) => {
         console.log(`User ${data.IDmain} is tracking ${data.IDsub}`);
         auth.permissToTrack(data);
+    });
+
+    socket.on('deletePermiss', (data) => {
+        console.log(`User ${data.IDmain} is not tracking ${data.IDsub}`);
+        auth.deleteUsers(data);
     });
 });
 

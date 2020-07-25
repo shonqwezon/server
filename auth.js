@@ -93,6 +93,63 @@ module.exports.permissToTrack = function (data) {
 };
 
 
+module.exports.deleteUsers = function (login) {
+    pool.query(`DELETE FROM permisstrack WHERE user_main = '${login.IDmain}' AND user_sub = '${login.IDsub}';`, (err) => {
+        if (err) {
+            console.log("Pool " + err)
+            pool.end();
+        }
+    });
+};
+
+
+
+module.exports.changePass = function (info, body) {
+    return new Promise(function (resolve, reject) {
+        pool.query(`SELECT * FROM authentication WHERE id = '${info.id}';`, (err, result) => {
+            if (err) {
+                console.log("Pool " + err);
+                pool.end();
+                reject(err);
+            }
+            if (result.rows[0].pass == body.oldPass) {
+                var token = md5(result.rows[0].email + result.rows[0].login + body.newPass);
+                pool.query("UPDATE authentication SET token = '" + token + `' WHERE id = ${info.id};`, (err) => {
+                    if (err) {
+                        console.log("Pool " + err);
+                        pool.end();
+                    }
+                });
+                pool.query("UPDATE authentication SET pass = '" + body.newPass + `' WHERE id = ${info.id};`, (err) => {
+                    if (err) {
+                        console.log("Pool " + err);
+                        pool.end();
+                    }
+                });
+                resolve(true);
+            }
+            else resolve(false);
+        });
+    });
+};
+
+
+
+module.exports.restorePass = function (login) {
+    return new Promise(function (resolve, reject) {
+        pool.query(`SELECT email FROM authentication WHERE login = '${login}';`, (err, result) => {
+            if (err) {
+                console.log("Pool " + err);
+                pool.end();
+                reject(err);
+            }
+            resolve(result.rows[0]);
+        });
+    });
+};
+
+
+
 module.exports.login = function (data) {
     return new Promise(function (resolve, reject) {
         pool.query("SELECT pass FROM authentication WHERE login = " + "'" + data.login + "';", (err, result) => {
