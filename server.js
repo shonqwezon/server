@@ -110,6 +110,35 @@ app.post("/avatar", upload.single("avatar"), function (req, res) {
 });
 
 
+
+//get permiss
+app.post('/getUsersMain', (req, res) => {
+    auth.check(req.headers).then((result) => {
+        if (result == true) {
+            profile.getUsersMain(req.headers.login).then((res2) => { res.status(200).json(res2); })
+                .catch((error) => { console.log("getInfo " + error); });
+        }
+        else res.sendStatus(401);
+    }).catch((error) => { console.log("Server " + error); });
+});
+
+
+
+
+//get permiss
+app.post('/getUsersSub', (req, res) => {
+    auth.check(req.headers).then((result) => {
+        if (result == true) {
+            profile.getUsersMain(req.headers.login).then((res1) => { res.status(200).json(res1); })
+                .catch((error) => { console.log("getPermiss " + error); });
+        }
+        else res.sendStatus(401);
+    }).catch((error) => { console.log("Server " + error); });
+});
+
+
+
+
 io.on('connection', (socket) => {
     auth.sockSet(socket.handshake.query.IDofUser, socket.id);
 
@@ -122,10 +151,20 @@ io.on('connection', (socket) => {
         console.log("Messgae to " + data.IDsub);
         auth.sockGet(data.IDsub).then((result) => {
             if (result != null) {
-                io.to(result.socket).emit('message', data.IDmain);
-                callback('OK');
+                profile.getUsersSub(data.IDmain).then((res1) => {
+                    var mass = [];
+                    res1.forEach((entry) => {
+                        mass.push(entry.user_sub);
+                    });
+                    console.log(mass.indexOf(data.IDsub) != -1);
+                    if (mass.indexOf(data.IDsub) != -1) callback('error_exist');
+                    else {
+                        io.to(result.socket).emit('message', data.IDmain);
+                        callback('OK');
+                    }
+                });
             } 
-            else callback('error');
+            else callback('error_found');
         }).catch((error) => { console.log("Server " + error) });        
     });
     socket.on('responseTo', (data) => {
