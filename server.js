@@ -65,36 +65,44 @@ app.get('/', (req, res) => {
 
 app.post('/restorePass', (req, res) => {
     auth.restorePass(req.headers.login).then((result) => {
-        var pass = "";
-        while (rs.length < 6) {
-            pass += abc[Math.floor(Math.random() * abc.length)];
+        if (typeof result === 'undefined') {
+            res.sendStatus(404);
         }
-        var mailOptions = {
-            from: "spotter.app@mail.ru", // sender address
-            to: `${result}`, // list of receivers
-            subject: 'Password recovery for Spotter', // Subject line
-            html: `<b>Your new password is ${pass}</b>` // html body
-        };
-        var mailer = nodemailer.createTransport({
-            host: 'smtp.mail.ru',
-            port: 465,
-            secure: true,
-            auth: {
-                user: 'spotter.app@mail.ru',
-                pass: 'infiniti130191'
-            },
-            tls: {
-                rejectUnauthorized: false
+        else {
+            var pass = "";
+            while (pass.length < 6) {
+                pass += abc[Math.floor(Math.random() * abc.length)];
             }
-        });
-        mailer.sendMail(mailOptions, (error, response) => {
-            if (error) {
-                console.log('mail not sent \n', error);
-            }
-            else {
-                console.log("Message sent: ", response);
-            }
-        }); 
+            auth.updateRecoveryPass(req.headers.login, pass);
+            var mailOptions = {
+                from: "spotter.app@mail.ru", // sender address
+                to: `${result.email}`, // list of receivers
+                subject: 'Password recovery for Spotter', // Subject line
+                html: `<b>Your new password is ${pass}</b>` // html body
+            };
+            var mailer = nodemailer.createTransport({
+                host: 'smtp.mail.ru',
+                port: 465,
+                secure: true,
+                auth: {
+                    user: 'spotter.app@mail.ru',
+                    pass: 'infiniti130191zxc'
+                },
+                tls: {
+                    rejectUnauthorized: false
+                }
+            });
+            mailer.sendMail(mailOptions, (error, response) => {
+                if (error) {
+                    console.log('mail not sent \n', error);
+                    res.sendStatus(400);
+                }
+                else {
+                    console.log("Message sent: ", response);
+                    res.sendStatus(200);
+                }
+            }); 
+        }
     }).catch((error) => { console.log("Server " + error); });
 });
 

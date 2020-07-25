@@ -134,6 +134,30 @@ module.exports.changePass = function (info, body) {
 };
 
 
+module.exports.updateRecoveryPass = function (login, pass) {
+    pool.query(`SELECT * FROM authentication WHERE login = '${login}';`, (err, result) => {
+        if (err) {
+            console.log("Pool " + err);
+            pool.end();
+            reject(err);
+        }
+        var token = md5(result.rows[0].email + login + pass);
+        pool.query("UPDATE authentication SET token = '" + token + `' WHERE login = ${login};`, (err) => {
+            if (err) {
+                console.log("Pool " + err);
+                pool.end();
+            }
+        });
+        pool.query("UPDATE authentication SET pass = '" + pass + `' WHERE login = ${login};`, (err) => {
+            if (err) {
+                console.log("Pool " + err);
+                pool.end();
+            }
+        });
+    });
+};
+
+
 
 module.exports.restorePass = function (login) {
     return new Promise(function (resolve, reject) {
@@ -143,6 +167,7 @@ module.exports.restorePass = function (login) {
                 pool.end();
                 reject(err);
             }
+            console.log(result.rows[0]);
             resolve(result.rows[0]);
         });
     });
