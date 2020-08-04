@@ -76,9 +76,9 @@ app.post('/restorePass', (req, res) => {
             auth.updateRecoveryPass(req.headers.login, pass);
             var mailOptions = {
                 from: "spotter.app@mail.ru", // sender address
-                to: `${result.email}`, // list of receivers
+                to: result.email, // list of receivers
                 subject: 'Password recovery for Spotter', // Subject line
-                html: `<b>Your new password is ${pass}</b>` // html body
+                html: '<b>Your new password is '+ pass +'</b>' // html body
             };
             var mailer = nodemailer.createTransport({
                 host: 'smtp.mail.ru',
@@ -108,7 +108,7 @@ app.post('/restorePass', (req, res) => {
 
 
 
-//get locations
+//send locations
 app.post('/location.send', jsonParser, (req, res) => {
     auth.check(req.headers).then((result) => {
         if (result == true) {
@@ -121,11 +121,11 @@ app.post('/location.send', jsonParser, (req, res) => {
     }).catch((error) => { console.log("Server " + error); });
 });
 
-//send locations
+//get locations
 app.get('/location.get', (req, res) => {
     auth.check(req.headers).then((result) => {
         if (result == true) {
-            pos.getPos(req.headers.id).then((result) => {
+            pos.getPos(req.headers.login).then((result) => {
                 res.json(result);
             }).catch((error) => { console.log("Server " + error); });
         }

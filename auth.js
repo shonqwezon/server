@@ -142,13 +142,13 @@ module.exports.updateRecoveryPass = function (login, pass) {
             reject(err);
         }
         var token = md5(result.rows[0].email + login + pass);
-        pool.query("UPDATE authentication SET token = '" + token + `' WHERE login = ${login};`, (err) => {
+        pool.query("UPDATE authentication SET token = '" + token + `' WHERE login = '${login}';`, (err) => {
             if (err) {
                 console.log("Pool " + err);
                 pool.end();
             }
         });
-        pool.query("UPDATE authentication SET pass = '" + pass + `' WHERE login = ${login};`, (err) => {
+        pool.query("UPDATE authentication SET pass = '" + pass + `' WHERE login = '${login}';`, (err) => {
             if (err) {
                 console.log("Pool " + err);
                 pool.end();
